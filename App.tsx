@@ -171,6 +171,60 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
     document.documentElement.classList.toggle('dark', isDarkMode);
+
+    // Favicon symbol follows current theme (dark/light), with graceful fallback.
+    const preferredPng = isDarkMode
+      ? '/branding/logo-symbol-dark.png'
+      : '/branding/logo-symbol-light.png';
+    const secondaryPng = isDarkMode
+      ? '/branding/logo-symbol-light.png'
+      : '/branding/logo-symbol-dark.png';
+    const fallbackSvg = isDarkMode
+      ? '/branding/logo-symbol-dark.svg'
+      : '/branding/logo-symbol-light.svg';
+    const secondarySvg = isDarkMode
+      ? '/branding/logo-symbol-light.svg'
+      : '/branding/logo-symbol-dark.svg';
+    const defaultFallback = '/logo.svg';
+
+    const setFavicon = (href: string) => {
+      let favicon = document.querySelector("link[rel='icon']") as HTMLLinkElement | null;
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/svg+xml';
+        document.head.appendChild(favicon);
+      }
+      favicon.href = href;
+    };
+
+    const tryImage = (src: string, onSuccess: () => void, onError: () => void) => {
+      const probe = new Image();
+      probe.onload = onSuccess;
+      probe.onerror = onError;
+      probe.src = src;
+    };
+
+    tryImage(
+      preferredPng,
+      () => setFavicon(preferredPng),
+      () =>
+        tryImage(
+          secondaryPng,
+          () => setFavicon(secondaryPng),
+          () =>
+            tryImage(
+              fallbackSvg,
+              () => setFavicon(fallbackSvg),
+              () =>
+                tryImage(
+                  secondarySvg,
+                  () => setFavicon(secondarySvg),
+                  () => setFavicon(defaultFallback)
+                )
+            )
+        )
+    );
   }, [isDarkMode]);
 
   const refreshData = async (shouldFetchPrices = false) => {
@@ -474,29 +528,43 @@ const App: React.FC = () => {
   if (showRoleSwitcher) {
       return (
           <div className="fixed inset-0 bg-slate-950 flex items-center justify-center p-4 z-[100] overflow-hidden">
-              <div className="absolute -top-20 -right-10 w-96 h-96 bg-blue-600/20 blur-3xl rounded-full" />
-              <div className="absolute -bottom-24 -left-16 w-96 h-96 bg-teal-500/20 blur-3xl rounded-full" />
-              <div className="relative bg-white/95 backdrop-blur rounded-3xl p-8 max-w-3xl w-full shadow-2xl border border-slate-200">
+              <div className="absolute -top-20 -right-10 w-96 h-96 bg-cyan-500/20 blur-3xl rounded-full" />
+              <div className="absolute -bottom-24 -left-16 w-96 h-96 bg-blue-600/25 blur-3xl rounded-full" />
+              <div className="relative bg-slate-900/95 backdrop-blur rounded-3xl p-8 max-w-3xl w-full shadow-2xl border border-slate-700">
                   <div className="text-center mb-8">
-                    <div className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 mb-3">FolioMaster Platform</div>
-                    <h1 className="text-4xl font-bold text-slate-900 mb-2">Choose Your Workspace</h1>
-                    <p className="text-slate-600">Enter as distributor or client to load the right tools, reports, and workflows.</p>
+                    <img
+                      src="/branding/logo-full-dark.png"
+                      alt="FolioMaster"
+                      className="h-12 w-auto mx-auto mb-3"
+                      onError={(e) => {
+                        const img = e.currentTarget as HTMLImageElement;
+                        if (img.dataset.fallbackStep !== 'svg') {
+                          img.dataset.fallbackStep = 'svg';
+                          img.src = '/branding/logo-full-dark.svg';
+                        } else {
+                          img.src = '/logo.svg';
+                        }
+                      }}
+                    />
+                    <div className="inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-slate-800 text-cyan-300 mb-3 border border-slate-700">FolioMaster Platform</div>
+                    <h1 className="text-4xl font-bold text-white mb-2">Choose Your Workspace</h1>
+                    <p className="text-slate-300">Enter as distributor or client to load the right tools, reports, and workflows.</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <button
                         onClick={() => handleRoleSelect('DISTRIBUTOR')}
-                        className="w-full p-6 border border-slate-200 rounded-2xl hover:bg-blue-50 hover:border-blue-400 transition-all text-left group"
+                        className="w-full p-6 border border-slate-700 rounded-2xl hover:bg-slate-800 hover:border-cyan-400 transition-all text-left group bg-slate-900/70"
                       >
-                          <span className="font-bold block text-xl mb-2 text-slate-800 group-hover:text-blue-700">Distributor Console</span>
-                          <span className="text-slate-500 text-sm">Client management, family grouping, analytics, and portfolio supervision.</span>
+                          <span className="font-bold block text-xl mb-2 text-slate-100 group-hover:text-cyan-300">Distributor Console</span>
+                          <span className="text-slate-400 text-sm">Client management, family grouping, analytics, and portfolio supervision.</span>
                       </button>
                       <button
                         onClick={() => handleRoleSelect('CLIENT')}
-                        className="w-full p-6 border border-slate-200 rounded-2xl hover:bg-teal-50 hover:border-teal-400 transition-all text-left group"
+                        className="w-full p-6 border border-slate-700 rounded-2xl hover:bg-slate-800 hover:border-blue-400 transition-all text-left group bg-slate-900/70"
                       >
-                          <span className="font-bold block text-xl mb-2 text-slate-800 group-hover:text-teal-700">Client Portal</span>
-                          <span className="text-slate-500 text-sm">Track holdings, goals, performance, and AI-driven suggestions.</span>
+                          <span className="font-bold block text-xl mb-2 text-slate-100 group-hover:text-blue-300">Client Portal</span>
+                          <span className="text-slate-400 text-sm">Track holdings, goals, performance, and AI-driven suggestions.</span>
                       </button>
                   </div>
               </div>

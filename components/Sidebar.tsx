@@ -51,9 +51,22 @@ const Sidebar: React.FC<SidebarProps> = ({
       }`}>
       <div className="p-6 border-b border-slate-700 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
-            FolioMaster
-          </h1>
+          <div className="flex items-center gap-2">
+            <img
+              src="/branding/logo-full-dark.png"
+              alt="FolioMaster logo"
+              className="h-11 w-auto max-w-[13rem] object-contain"
+              onError={(e) => {
+                const img = e.currentTarget as HTMLImageElement;
+                if (img.dataset.fallbackStep !== 'svg') {
+                  img.dataset.fallbackStep = 'svg';
+                  img.src = '/branding/logo-full-dark.svg';
+                } else {
+                  img.src = '/logo.svg';
+                }
+              }}
+            />
+          </div>
           <p className="text-xs text-slate-400 mt-1">
               {role === 'DISTRIBUTOR' ? 'Distributor Console' : 'Client Portal'}
           </p>
