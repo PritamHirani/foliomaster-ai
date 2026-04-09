@@ -2,6 +2,8 @@
 
 FolioMaster AI is a mutual fund portfolio management demo built with React, TypeScript, and Vite. It simulates a distributor-facing wealth dashboard and a client-facing portfolio portal in a single frontend application.
 
+Live app: https://foliomaster-ai.vercel.app
+
 The project focuses on:
 - portfolio tracking across clients, folios, and funds
 - holdings and return calculations from transaction history
